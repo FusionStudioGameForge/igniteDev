@@ -1,22 +1,21 @@
+//  GLOBAL DATA 
 var igniteData = {
-    unlocked: 7, // Start at Level 1
+    unlocked: 1, // Set to 1 for production, 7 for testing
     selectedMode: 'classic'
 };
 
-// Updated navigation: Infinity only sees MENU, Story sees MENU and LEVELS
+//  SHARED NAVIGATION 
 function addNavigationButtons(scene) {
     let menuBtn = scene.add.text(20, 20, 'MENU', { fontSize: '24px', fill: '#fff', backgroundColor: '#333', padding: 5 })
         .setInteractive().setScrollFactor(0).setDepth(100);
     
     menuBtn.on('pointerdown', () => scene.scene.start('MainMenu'));
 
-    // Only show LEVELS button if NOT in Infinity Mode
     if (scene.scene.key !== 'InfinityMode') {
         let levelsBtn = scene.add.text(110, 20, 'LEVELS', { fontSize: '24px', fill: '#fff', backgroundColor: '#333', padding: 5 })
             .setInteractive().setScrollFactor(0).setDepth(100);
         
         levelsBtn.on('pointerdown', () => scene.scene.start('LevelSelect'));
-        
         levelsBtn.on('pointerover', () => levelsBtn.setStyle({ fill: '#ff0' }));
         levelsBtn.on('pointerout', () => levelsBtn.setStyle({ fill: '#fff' }));
     }
@@ -25,10 +24,57 @@ function addNavigationButtons(scene) {
     menuBtn.on('pointerout', () => menuBtn.setStyle({ fill: '#fff' }));
 }
 
+//  SCENE: INTRO COMIC 
+class IntroScene extends Phaser.Scene {
+    constructor() { super('IntroScene'); }
+    preload() {
+        this.load.image("introImg", "/assets/Intro_Comic_Strip.png");
+    }
+    create() {
+        let w = this.cameras.main.width;
+        let h = this.cameras.main.height;
+        this.add.image(w/2, h/2, "introImg").setDisplaySize(w, h);
+
+        this.add.text(w/2, h/2 - 100, 'THE JOURNEY BEGINS', { 
+            fontSize: '60px', fill: '#fff', fontStyle: 'bold', stroke: '#000', strokeThickness: 8 
+        }).setOrigin(0.5);
+
+        this.add.text(w/2, h - 100, 'Click anywhere to start Level 1...', { fontSize: '24px', fill: '#fff' }).setOrigin(0.5);
+        this.input.on('pointerdown', () => this.scene.start('Level1'));
+    }
+}
+
+//  SCENE: ENDING COMIC 
+class EndingScene extends Phaser.Scene {
+    constructor() { super('EndingScene'); }
+    preload() {
+        this.load.image("endImg", "/assets/ending_comic_strip.png");
+    }
+    create() {
+        let w = this.cameras.main.width;
+        let h = this.cameras.main.height;
+        this.add.image(w/2, h/2, "endImg").setDisplaySize(w, h);
+        
+        this.add.text(w/2, 100, 'THE END - YOU ESCAPED!', { 
+            fontSize: '54px', fill: '#0f0', fontStyle: 'bold', stroke: '#000', strokeThickness: 6 
+        }).setOrigin(0.5);
+        
+        this.add.text(w/2, h - 80, 'Click to return to Menu', { fontSize: '24px', fill: '#fff' }).setOrigin(0.5);
+        this.input.on('pointerdown', () => this.scene.start('MainMenu'));
+    }
+}
+
 //  SCENE 1: MAIN MENU 
 class MainMenu extends Phaser.Scene {
-    constructor() { super('MainMenu'); }
+    constructor() { super('MainMenu'); 
+        
+    }
+    preload(){
+        
+
+    }
     create() {
+
         let centerX = this.cameras.main.width / 2;
         let centerY = this.cameras.main.height / 2;
         const logo = document.getElementById('html-logo');
@@ -65,14 +111,12 @@ class ModeSelect extends Phaser.Scene {
         let centerX = this.cameras.main.width / 2;
         this.add.text(centerX, 150, 'SELECT MODE', { fontSize: '52px', fontStyle: 'bold' }).setOrigin(0.5);
         
-        // STORY MODE Button
         let storyBtn = this.add.text(centerX, 300, 'STORY MODE', { fontSize: '42px', fontStyle: 'bold', fill: '#0f0' }).setOrigin(0.5).setInteractive();
         storyBtn.on('pointerdown', () => { 
             igniteData.selectedMode = 'classic'; 
             this.scene.start('LevelSelect'); 
         });
         
-        // INFINITY MODE Button
         let infinityBtn = this.add.text(centerX, 450, 'INFINITY MODE', { fontSize: '42px', fontStyle: 'bold', fill: '#0ff' }).setOrigin(0.5).setInteractive();
         infinityBtn.on('pointerdown', () => { 
             igniteData.selectedMode = 'infinity'; 
@@ -95,7 +139,7 @@ class LevelSelect extends Phaser.Scene {
         let backBtn = this.add.text(40, 40, '< BACK', { fontSize: '32px', fill: '#fff' }).setInteractive();
         backBtn.on('pointerdown', () => this.scene.start('MainMenu'));
 
-        for (let i = 1; i <= 10; i++) {
+        for (let i = 1; i <= 7; i++) {
             let x = (centerX - 300) + ((i-1)%5)*150; 
             let y = i<=5?250:450;
             let isLocked = i > igniteData.unlocked;
@@ -104,7 +148,11 @@ class LevelSelect extends Phaser.Scene {
             
             if (!isLocked) {
                 btn.setInteractive();
-                btn.on('pointerdown', () => this.scene.start('Level' + i));
+                btn.on('pointerdown', () => {
+                    // Play Intro if Level 1 is selected
+                    if (i === 1) this.scene.start('IntroScene');
+                    else this.scene.start('Level' + i);
+                });
                 btn.on('pointerover', () => btn.setScale(1.2));
                 btn.on('pointerout', () => btn.setScale(1.0));
             } else {
@@ -114,14 +162,13 @@ class LevelSelect extends Phaser.Scene {
     }
 }
 
-//  SCENE 4: LEVEL 1 
+//  LEVELS 1-6 
 class Level1 extends Phaser.Scene {
     constructor() { super('Level1'); 
         this.bgMusic
     }
-    preload(){
-        this.load.sound("bgMusic", "/assets/Kitsune^2 Rainbow Tylenol.mp3")
-        this.load.image("pip", "/assets/PIP.png")
+    preload(){ this.load.image("pip", "/assets/PIP.png");
+        this.load.audio("bgMusic", "/assets/Kitsune^2 Rainbow Tylenol.mp3")
     }
     create() {
         this.bgMusic = this.sound.add("bgMusic")
@@ -129,16 +176,12 @@ class Level1 extends Phaser.Scene {
         addNavigationButtons(this);
         let w = this.cameras.main.width; let h = this.cameras.main.height;
         this.platforms = this.physics.add.staticGroup();
-        
-        // Changed 0x666666 to 0x00ff00 (Bright Green)
-        this.platforms.add(this.add.rectangle(w/2, h-30, w, 60,0x666666 ));
-        
-        this.player = this.physics.add.image(100, h-150, "pip").setScale(0.65, 0.65);
+        this.platforms.add(this.add.rectangle(w/2, h-30, w, 60, 0x666666));
+        this.player = this.physics.add.image(100, h-150, "pip").setScale(0.65);
         this.player.body.setCollideWorldBounds(true);
         this.physics.add.collider(this.player, this.platforms);
-        
-        this.exitHole = this.add.circle(w-150, h-100, 50, 0x00ff00); 
-        this.physics.add.existing(this.exitHole,  true);
+        this.exitHole = this.add.circle(w-150, h-100, 50, 0x00ff00);
+        this.physics.add.existing(this.exitHole, true);
         this.physics.add.overlap(this.player, this.exitHole, () => { 
             if(igniteData.unlocked < 2) igniteData.unlocked = 2;
             this.scene.start('LevelSelect'); 
@@ -153,36 +196,27 @@ class Level1 extends Phaser.Scene {
     }
 }
 
-//  SCENE 5: LEVEL 2 
 class Level2 extends Phaser.Scene {
     constructor() { super('Level2'); }
-    preload(){
-        this.load.image("pip", "/assets/PIP.png")
-    }
+    preload(){ this.load.image("pip", "/assets/PIP.png"); }
     create() {
         addNavigationButtons(this);
-        let w = this.cameras.main.width;
-        let h = this.cameras.main.height;
-        
+        let w = this.cameras.main.width; let h = this.cameras.main.height;
         this.platforms = this.physics.add.staticGroup();
-        let ground = this.add.rectangle(w / 2, h - 30, w, 60, 0x666666);
-        let wallLeft = this.add.rectangle(200, h - 380, 400, 100, 0xFFFFFF);
-        let wallTall = this.add.rectangle(450, 140, 100, 660, 0xFFFFFF);
-      
-        //let step1 = this.add.rectangle(w / 3, 710, 100, 25, 0xFFFFFF);
-        let step2 = this.add.rectangle(w / 2, 600, 100, 25, 0xFFFFFF);
-        let step3 = this.add.rectangle(1100, 400, 100, 25, 0xFFFFFF);
-        let step4 = this.add.rectangle(1270, 550, 100, 25, 0xFFFFFF);
-        let step5 = this.add.rectangle(1350, 300, 100, 25, 0xFFFFFF);
-        let fakeStep = this.add.rectangle(1450, 300, 100, 25, 0x7a7a7a);
-        let step6 = this.add.rectangle(1550, 300, 100, 25, 0xFFFFFF);
-        this.platforms.addMultiple([ground, wallLeft, wallTall,  step2, step3, step4, step5, step6]);
-        
-        this.player = this.physics.add.image(100, h - 150, "pip").setScale(0.65, 0.65);
+        this.platforms.addMultiple([
+            this.add.rectangle(w/2, h-30, w, 60, 0x666666),
+            this.add.rectangle(200, h-380, 400, 100, 0xffffff),
+            this.add.rectangle(450, 140, 100, 660, 0xffffff),
+            this.add.rectangle(w/2, 600, 100, 25, 0xffffff),
+            this.add.rectangle(1100, 400, 100, 25, 0xffffff),
+            this.add.rectangle(1270, 550, 100, 25, 0xffffff),
+            this.add.rectangle(1350, 300, 100, 25, 0xffffff),
+            this.add.rectangle(1550, 300, 100, 25, 0xffffff)
+        ]);
+        this.player = this.physics.add.image(100, h-150, "pip").setScale(0.65);
         this.player.body.setCollideWorldBounds(true);
         this.physics.add.collider(this.player, this.platforms);
-        
-        this.exitHole = this.add.circle(w - 100, 100, 50, 0x00ff00);
+        this.exitHole = this.add.circle(w-100, 100, 50, 0x00ff00);
         this.physics.add.existing(this.exitHole, true);
         this.physics.add.overlap(this.player, this.exitHole, () => {
             if(igniteData.unlocked < 3) igniteData.unlocked = 3;
@@ -198,36 +232,25 @@ class Level2 extends Phaser.Scene {
     }
 }
 
-//  SCENE 6: LEVEL 3 
 class Level3 extends Phaser.Scene {
     constructor() { super('Level3'); }
-    preload(){
-        this.load.image("pip", "/assets/PIP.png")
-    }
+    preload(){ this.load.image("pip", "/assets/PIP.png"); }
     create() {
         addNavigationButtons(this);
         let w = this.cameras.main.width; let h = this.cameras.main.height;
         this.platforms = this.physics.add.staticGroup();
-        let ground = this.add.rectangle(w/2, h-30, w, 60, 0x666666);
-        let goalPlatform = this.add.rectangle(w-100, 220, 200, 30, 0x666666);
-        this.platforms.addMultiple([ground, goalPlatform]);
+        this.platforms.add(this.add.rectangle(w/2, h-30, w, 60, 0x666666));
+        this.platforms.add(this.add.rectangle(w-100, 220, 200, 30, 0x666666));
         this.movingPlats = this.physics.add.group({ allowGravity: false });
-        const createMovingStep = (name, y, speed) => {
+        const createStep = (y, speed) => {
             let p = this.add.rectangle(w/2, y, 250, 30, 0xFFFFFF);
-            this.physics.add.existing(p);
-            p.body.setImmovable(true);
-            p.body.setFriction(1);
+            this.physics.add.existing(p); p.body.setImmovable(true);
             p.startX = w/2; p.speed = speed; p.range = 300;
-            p.name = name; 
             this.movingPlats.add(p);
         };
-        createMovingStep('movingStep1', h-180, 1.5);
-        createMovingStep('movingStep2', h-360, 2);
-        
-        this.player = this.physics.add.image(100, h-150, "pip").setScale(0.65, 0.65);
-        this.player.body.setCollideWorldBounds(true);
+        createStep(h-180, 1.5); createStep(h-360, 2);
+        this.player = this.physics.add.image(100, h-150, "pip").setScale(0.65);
         this.physics.add.collider(this.player, [this.platforms, this.movingPlats]);
-        
         this.exitHole = this.add.circle(w-100, 150, 50, 0x00ff00);
         this.physics.add.existing(this.exitHole, true);
         this.physics.add.overlap(this.player, this.exitHole, () => { 
@@ -242,8 +265,7 @@ class Level3 extends Phaser.Scene {
         this.movingPlats.getChildren().forEach(p => {
             if (p.x >= p.startX + p.range) p.speed = -Math.abs(p.speed);
             if (p.x <= p.startX - p.range) p.speed = Math.abs(p.speed);
-            p.x += p.speed;
-            p.body.updateFromGameObject();
+            p.x += p.speed; p.body.updateFromGameObject();
         });
     }
 }
@@ -372,6 +394,7 @@ class Level5 extends Phaser.Scene {
         });
     }
 }
+
 //  SCENE 9: LEVEL 6
 
 class Level6 extends Phaser.Scene {
@@ -480,128 +503,73 @@ class Level6 extends Phaser.Scene {
         }
     }
 }
-
-//  SCENE 10: Level 7
+//  SCENE 10: FINAL LEVEL 7 
 class Level7 extends Phaser.Scene {
-    constructor() {
-        super("Level7");
-    }
-
+    constructor() { super("Level7"); }
     preload() {
-        // Using the assets you specified
         this.load.image("bg7", "/assets/Sprite-0003.png");
         this.load.image("pip", "/assets/PIP.png");
     }
-
     create() {
-        // Add navigation (Menu/Levels)
         addNavigationButtons(this);
-
-        let w = this.cameras.main.width;
-        let h = this.cameras.main.height;
-
-        // Background
-        this.add.image(w / 2, h / 2, "bg7").setScale(7);
-
-        // Platforms
+        let w = this.cameras.main.width; let h = this.cameras.main.height;
+        this.add.image(w/2, h/2, "bg7").setScale(7);
         this.platforms = this.physics.add.staticGroup();
-        // Positioned the platform towards the bottom so the player has room to walk
-        let plat1 = this.add.rectangle(w / 2, h - 100, w, 40, 0xFFFFFF);
-        this.platforms.add(plat1);
-
-        // Player
-        this.player = this.physics.add.image(100, h - 200, "pip").setScale(0.65);
+        this.platforms.add(this.add.rectangle(w/2, h-100, w, 40, 0xFFFFFF));
+        this.player = this.physics.add.image(100, h-200, "pip").setScale(0.65);
         this.player.body.setCollideWorldBounds(true);
-        
-        // Collisions
         this.physics.add.collider(this.player, this.platforms);
-
-        // Exit Hole (The Goal)
-        this.exitHole = this.add.circle(w - 100, h - 180, 50, 0x00ff00);
+        this.exitHole = this.add.circle(w-100, h-180, 50, 0x00ff00);
         this.physics.add.existing(this.exitHole, true);
-
-        // Controls
         this.cursors = this.input.keyboard.createCursorKeys();
     }
-
     update() {
-        // Movement Logic
-        if (this.cursors.left.isDown) {
-            this.player.body.setVelocityX(-400);
-        } else if (this.cursors.right.isDown) {
-            this.player.body.setVelocityX(400);
-        } else {
-            this.player.body.setVelocityX(0);
-        }
-
-        // Jump Logic
-        if (this.cursors.up.isDown && this.player.body.touching.down) {
-            this.player.body.setVelocityY(-700);
-        }
-
-        // Win Condition: Check overlap with Exit Hole
+        if (this.cursors.left.isDown) this.player.body.setVelocityX(-400);
+        else if (this.cursors.right.isDown) this.player.body.setVelocityX(400);
+        else this.player.body.setVelocityX(0);
+        if (this.cursors.up.isDown && this.player.body.touching.down) this.player.body.setVelocityY(-700);
+        
         this.physics.overlap(this.player, this.exitHole, () => {
-            if (igniteData.unlocked < 8) {
-                igniteData.unlocked = 8; // Unlock the next level
-            }
-            this.scene.start('LevelSelect');
+            // TRANSITION TO ENDING COMIC
+            this.scene.start('EndingScene');
         });
     }
 }
 
-//  SCENE 11: INFINITY MODE 
+// SCENE 11: INFINITY MODE 
 class InfinityMode extends Phaser.Scene {
     constructor() { super('InfinityMode'); }
-    preload(){
-        this.load.image("pip", "/assets/PIP.png")
-    }
+    preload(){ this.load.image("pip", "/assets/PIP.png"); }
     create() {
-        addNavigationButtons(this); // Only MENU button will show here
+        addNavigationButtons(this);
         let w = this.cameras.main.width; let h = this.cameras.main.height;
         this.cameras.main.setBackgroundColor('#000022');
         this.platforms = this.physics.add.staticGroup();
         this.powerups = this.physics.add.staticGroup();
         let floor = this.add.rectangle(w/2, h-30, w, 60, 0x444444);
         this.physics.add.existing(floor, true); this.platforms.add(floor);
-        this.currentY = h - 30; this.gap = 120; this.scrollSpeed = 0.6; this.normalJump = -700;
-        this.jumpForce = this.normalJump; this.score = 0; this.boostTimer = 0;
-        for (let i = 0; i < 20; i++) { this.spawnNextPlatform(); }
-        
-        this.player = this.physics.add.image(w/2, h-150, "pip").setScale(0.65, 0.65);
+        this.currentY = h-30; this.score = 0; this.jumpForce = -700;
+        for (let i = 0; i < 20; i++) this.spawnNextPlatform();
+        this.player = this.physics.add.image(w/2, h-150, "pip").setScale(0.65);
         this.player.body.setCollideWorldBounds(true);
-        this.player.body.world.setBounds(0, -1000000, w, 1000000 + h); 
+        this.player.body.world.setBounds(0, -1000000, w, 1000000 + h);
         this.physics.add.collider(this.player, this.platforms);
-        this.physics.add.overlap(this.player, this.powerups, this.collectBoost, null, this);
         this.cursors = this.input.keyboard.createCursorKeys();
-        this.scoreText = this.add.text(30, 30, 'HEIGHT: 0', { fontSize: '36px', fill: '#fff', fontStyle: 'bold' }).setScrollFactor(0);
-        this.boostText = this.add.text(w/2, 100, '', { fontSize: '48px', fill: '#ff0', fontStyle: 'bold' }).setOrigin(0.5).setScrollFactor(0);
+        this.scoreText = this.add.text(30, 30, 'HEIGHT: 0', { fontSize: '36px', fill: '#fff' }).setScrollFactor(0);
     }
     spawnNextPlatform() {
-        let w = this.cameras.main.width;
-        this.currentY -= (this.gap + Math.min(this.score / 100, 100));
-        let x = Phaser.Math.Between(150, w - 150);
-        let plat = this.add.rectangle(x, this.currentY, 180, 30, 0x00ccff);
+        this.currentY -= 150;
+        let plat = this.add.rectangle(Phaser.Math.Between(150, this.cameras.main.width-150), this.currentY, 180, 30, 0x00ccff);
         this.physics.add.existing(plat, true); this.platforms.add(plat);
-        if (Phaser.Math.Between(1, 8) === 1) {
-            let boost = this.add.star(x, this.currentY - 50, 5, 15, 30, 0xffff00);
-            this.physics.add.existing(boost, true); this.powerups.add(boost);
-        }
-    }
-    collectBoost(player, boost) {
-        boost.destroy(); this.jumpForce = -1100; this.boostTimer = 15;
-        if (this.boostEvent) this.boostEvent.remove();
-        this.boostEvent = this.time.addEvent({ delay: 1000, callback: () => { this.boostTimer--; if (this.boostTimer <= 0) { this.jumpForce = this.normalJump; this.boostText.setText(''); this.boostEvent.remove(); } }, loop: true });
     }
     update() {
-        let h = this.cameras.main.height;
         if (this.cursors.left.isDown) this.player.body.setVelocityX(-400); else if (this.cursors.right.isDown) this.player.body.setVelocityX(400); else this.player.body.setVelocityX(0);
         if (this.cursors.up.isDown && this.player.body.touching.down) this.player.body.setVelocityY(this.jumpForce);
-        this.cameras.main.scrollY -= this.scrollSpeed; this.scrollSpeed += 0.0005; 
-        if (this.currentY > this.cameras.main.scrollY - 1200) this.spawnNextPlatform();
-        let currentHeight = Math.abs(Math.floor(this.player.y - (h-150)));
-        if (currentHeight > this.score) { this.score = currentHeight; this.scoreText.setText('HEIGHT: ' + this.score); }
-        if (this.boostTimer > 0) this.boostText.setText('SUPER JUMP: ' + this.boostTimer + 's');
-        if (this.player.y > this.cameras.main.scrollY + h) { if (this.boostEvent) this.boostEvent.remove(); this.scene.start('MainMenu'); }
+        this.cameras.main.scrollY -= 0.6;
+        if (this.currentY > this.cameras.main.scrollY - 1000) this.spawnNextPlatform();
+        let cur = Math.abs(Math.floor(this.player.y - (this.cameras.main.height-150)));
+        if (cur > this.score) { this.score = cur; this.scoreText.setText('HEIGHT: ' + this.score); }
+        if (this.player.y > this.cameras.main.scrollY + this.cameras.main.height) this.scene.start('MainMenu');
     }
 }
 
@@ -612,6 +580,10 @@ const config = {
     height: window.innerHeight,
     scale: { mode: Phaser.Scale.RESIZE, autoCenter: Phaser.Scale.CENTER_BOTH },
     physics: { default: 'arcade', arcade: { gravity: { y: 1200 } } },
-    scene: [MainMenu, ModeSelect, LevelSelect, Level1, Level2, Level3, Level4, Level5,Level6, Level7, InfinityMode]
+    scene: [
+        MainMenu, ModeSelect, LevelSelect, 
+        IntroScene, Level1, Level2, Level3, Level4, Level5, Level6, Level7, 
+        EndingScene, InfinityMode
+    ]
 };
 const game = new Phaser.Game(config);
