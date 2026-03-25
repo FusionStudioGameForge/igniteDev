@@ -168,13 +168,16 @@ class Level1 extends Phaser.Scene {
         this.bgMusic
     }
     preload(){ this.load.image("pip", "/assets/PIP.png");
+        this.load.image("bg", "/assets/Cave1_backgrond.png")
         this.load.audio("bgMusic", "/assets/Kitsune^2 Rainbow Tylenol.mp3")
     }
     create() {
+        
         this.bgMusic = this.sound.add("bgMusic")
         this.bgMusic.play();
         addNavigationButtons(this);
         let w = this.cameras.main.width; let h = this.cameras.main.height;
+        this.add.image(800,400,"bg").setScale(7)
         this.platforms = this.physics.add.staticGroup();
         this.platforms.add(this.add.rectangle(w/2, h-30, w, 60, 0x666666));
         this.player = this.physics.add.image(100, h-150, "pip").setScale(0.65);
@@ -198,10 +201,13 @@ class Level1 extends Phaser.Scene {
 
 class Level2 extends Phaser.Scene {
     constructor() { super('Level2'); }
-    preload(){ this.load.image("pip", "/assets/PIP.png"); }
+    preload(){ this.load.image("pip", "/assets/PIP.png");
+        this.load.image("bg", "/assets/Cave1_backgrond.png")
+     }
     create() {
         addNavigationButtons(this);
         let w = this.cameras.main.width; let h = this.cameras.main.height;
+        this.add.image(800,400,"bg").setScale(7)
         this.platforms = this.physics.add.staticGroup();
         this.platforms.addMultiple([
             this.add.rectangle(w/2, h-30, w, 60, 0x666666),
@@ -234,10 +240,13 @@ class Level2 extends Phaser.Scene {
 
 class Level3 extends Phaser.Scene {
     constructor() { super('Level3'); }
-    preload(){ this.load.image("pip", "/assets/PIP.png"); }
+    preload(){ this.load.image("pip", "/assets/PIP.png");
+        this.load.image("bg","/assets/Cave1_backgrond.png")
+     }
     create() {
         addNavigationButtons(this);
         let w = this.cameras.main.width; let h = this.cameras.main.height;
+        this.add.image(800,400,"bg").setScale(7)
         this.platforms = this.physics.add.staticGroup();
         this.platforms.add(this.add.rectangle(w/2, h-30, w, 60, 0x666666));
         this.platforms.add(this.add.rectangle(w-100, 220, 200, 30, 0x666666));
@@ -275,10 +284,12 @@ class Level4 extends Phaser.Scene {
     constructor() { super('Level4'); }
     preload(){
         this.load.image("pip", "/assets/PIP.png")
+        this.load.image("bg","/assets/Cave1_backgrond.png")
     }
     create() {
         addNavigationButtons(this);
         let w = this.cameras.main.width; let h = this.cameras.main.height;
+        this.add.image(800,400,"bg").setScale(7)
         this.lava = this.add.rectangle(w / 2, h - 10, w, 20, 0xFF4500);
         this.physics.add.existing(this.lava, true);
         this.platforms = this.physics.add.staticGroup();
@@ -336,10 +347,12 @@ class Level5 extends Phaser.Scene {
     constructor() { super('Level5'); }
     preload(){
         this.load.image("pip", "/assets/PIP.png")
+        this.load.image("bg","/assets/Cave1_backgrond.png")
     }
     create() {
         addNavigationButtons(this);
         let w = this.cameras.main.width; let h = this.cameras.main.height;
+        this.add.image(800,400,"bg").setScale(7)
         this.lava = this.add.rectangle(w / 2, h - 10, w, 20, 0xFF4500);
         this.physics.add.existing(this.lava, true);
         this.platforms = this.physics.add.staticGroup();
@@ -403,12 +416,12 @@ class Level6 extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image("bg", "/assets/vertical_cave.png");
+        this.load.image("bg1", "/assets/vertical_cave.png");
         this.load.image("pip", "/assets/PIP.png");
     }
 
     create() {
-        this.add.image(800, 400, "bg").setScale(1.5, 1.5);
+        this.add.image(800, 400, "bg1").setScale(1.5, 1.5);
         let w = 1600;
         let h = 800;
         
@@ -515,7 +528,7 @@ class Level7 extends Phaser.Scene {
         let w = this.cameras.main.width; let h = this.cameras.main.height;
         this.add.image(w/2, h/2, "bg7").setScale(7);
         this.platforms = this.physics.add.staticGroup();
-        this.platforms.add(this.add.rectangle(w/2, h-100, w, 40, 0xFFFFFF));
+        this.platforms.add(this.add.rectangle(w/2, h-100, w, 40, 0xFFFFFF).setAlpha(0));
         this.player = this.physics.add.image(100, h-200, "pip").setScale(0.65);
         this.player.body.setCollideWorldBounds(true);
         this.physics.add.collider(this.player, this.platforms);
