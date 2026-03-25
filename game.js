@@ -116,11 +116,16 @@ class LevelSelect extends Phaser.Scene {
 
 //  SCENE 4: LEVEL 1 
 class Level1 extends Phaser.Scene {
-    constructor() { super('Level1'); }
+    constructor() { super('Level1'); 
+        this.bgMusic
+    }
     preload(){
+        this.load.sound("bgMusic", "/assets/Kitsune^2 Rainbow Tylenol.mp3")
         this.load.image("pip", "/assets/PIP.png")
     }
     create() {
+        this.bgMusic = this.sound.add("bgMusic")
+        this.bgMusic.play();
         addNavigationButtons(this);
         let w = this.cameras.main.width; let h = this.cameras.main.height;
         this.platforms = this.physics.add.staticGroup();
