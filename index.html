@@ -19,7 +19,6 @@
             align-items: center;
         }
         
-        
         #ui-container {
             position: absolute;
             top: 0;
@@ -38,9 +37,64 @@
             height: auto;
             display: block;
         }
+
+        /* Mobile block overlay */
+        #mobile-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: #000;
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        #mobile-overlay img {
+            width: min(260px, 70vw);
+            height: auto;
+            margin-bottom: 32px;
+        }
+
+        #mobile-overlay h1 {
+            color: #0f0;
+            font-family: sans-serif;
+            font-size: clamp(20px, 5vw, 32px);
+            margin: 0 0 16px;
+        }
+
+        #mobile-overlay p {
+            color: #aaa;
+            font-family: sans-serif;
+            font-size: clamp(14px, 3.5vw, 18px);
+            line-height: 1.6;
+            max-width: 360px;
+            margin: 0;
+        }
+
+        #mobile-overlay .icon {
+            font-size: clamp(48px, 15vw, 80px);
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            #mobile-overlay { display: flex; }
+            #ui-container, canvas { display: none !important; }
+        }
     </style>
 </head>
 <body>
+    <!-- Mobile block screen -->
+    <div id="mobile-overlay">
+        <img src="logo.png" alt="igniteDev logo">
+        <div class="icon">🖥️</div>
+        <h1>Desktop Only</h1>
+        <p>This game is designed for keyboard and a larger screen.<br>Please open it on a laptop or PC to play.</p>
+    </div>
+
     <div id="ui-container">
         <img id="html-logo" src="logo.png">
     </div>

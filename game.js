@@ -70,10 +70,13 @@ class MainMenu extends Phaser.Scene {
         
     }
     preload(){
-        
-
+        this.load.audio("bgMusic", "/assets/bgMusic.mp3");
     }
     create() {
+        // Start looping music once; persists across all scene transitions
+        if (!this.sound.get('bgMusic')) {
+            this.sound.add('bgMusic', { loop: true }).play();
+        }
 
         let centerX = this.cameras.main.width / 2;
         let centerY = this.cameras.main.height / 2;
@@ -164,17 +167,12 @@ class LevelSelect extends Phaser.Scene {
 
 //  LEVELS 1-6 
 class Level1 extends Phaser.Scene {
-    constructor() { super('Level1'); 
-        this.bgMusic
-    }
-    preload(){ this.load.image("pip", "/assets/PIP.png");
-        this.load.image("bg", "/assets/Cave1_backgrond.png")
-        this.load.audio("bgMusic", "/assets/Kitsune^2 Rainbow Tylenol.mp3")
+    constructor() { super('Level1'); }
+    preload(){
+        this.load.image("pip", "/assets/PIP.png");
+        this.load.image("bg", "/assets/Cave1_backgrond.png");
     }
     create() {
-        
-        this.bgMusic = this.sound.add("bgMusic")
-        this.bgMusic.play();
         addNavigationButtons(this);
         let w = this.cameras.main.width; let h = this.cameras.main.height;
         this.add.image(800,400,"bg").setScale(7)
@@ -259,6 +257,7 @@ class Level3 extends Phaser.Scene {
         };
         createStep(h-180, 1.5); createStep(h-360, 2);
         this.player = this.physics.add.image(100, h-150, "pip").setScale(0.65);
+        this.player.body.setCollideWorldBounds(true);
         this.physics.add.collider(this.player, [this.platforms, this.movingPlats]);
         this.exitHole = this.add.circle(w-100, 150, 50, 0x00ff00);
         this.physics.add.existing(this.exitHole, true);
@@ -315,7 +314,7 @@ class Level4 extends Phaser.Scene {
         this.physics.add.collider(this.player, [this.platforms, this.movingPlats]);
         this.physics.add.overlap(this.player, this.lava, () => { this.scene.start('Level4'); });
         
-        this.exitHole = this.add.circle(w * 0.9, 80, 50, 0x000000);
+        this.exitHole = this.add.circle(w * 0.9, 80, 50, 0x00ff00);
         this.physics.add.existing(this.exitHole, true);
         this.physics.add.overlap(this.player, this.exitHole, () => { 
             if(igniteData.unlocked < 5) igniteData.unlocked = 5;
@@ -377,7 +376,7 @@ class Level5 extends Phaser.Scene {
         this.physics.add.collider(this.player, [this.platforms, this.trapPlats]);
         this.physics.add.overlap(this.player, this.lava, () => this.scene.start('Level5'));
         
-        this.exitHole = this.add.circle(w * 0.9, 80, 50, 0x000000);
+        this.exitHole = this.add.circle(w * 0.9, 80, 50, 0x00ff00);
         this.physics.add.existing(this.exitHole, true);
         this.physics.add.overlap(this.player, this.exitHole, () => { 
             if(igniteData.unlocked < 6) igniteData.unlocked = 6;
@@ -416,11 +415,12 @@ class Level6 extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image("bg1", "/assets/vertical_cave.png");
+        this.load.image("bg1", "/assets/Vertical_cave.png");
         this.load.image("pip", "/assets/PIP.png");
     }
 
     create() {
+        addNavigationButtons(this);
         this.add.image(800, 400, "bg1").setScale(1.5, 1.5);
         let w = 1600;
         let h = 800;
